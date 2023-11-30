@@ -840,8 +840,8 @@ def set_color_codes(palette="deep"):
         rgb = mpl.colors.colorConverter.to_rgb(color)
         mpl.colors.colorConverter.colors[code] = rgb
 
-#################
-#################
+##################
+##################
 
 import extcolors # 모듈 설치 필요. # 추가.
 from PIL import Image # 추가.
