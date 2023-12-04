@@ -852,7 +852,7 @@ def rgb_to_seaborn_palette(rgb_values):
     return seaborn_palette
 
 def enhance_palette_with_image_colors(image_path):
-    # 이미지에서 RGB 값을 추출. image_path는 webp를 지원.
+    # 이미지에서 RGB 값을 추출.
     img =Image.open(image_path)
     colors, _=extcolors.extract_from_image(img)
     rgb_values =[c[0] for c in colors]
