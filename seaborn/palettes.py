@@ -839,3 +839,26 @@ def set_color_codes(palette="deep"):
     for code, color in zip("bgrmyck", colors):
         rgb = mpl.colors.colorConverter.to_rgb(color)
         mpl.colors.colorConverter.colors[code] = rgb
+
+################
+################
+
+import extcolors # 컬러 추출 필요 모듈. 추가 설치 필요.
+from PIL import Image # 이미지를 불러오는 모듈.
+
+def rgb_to_seaborn_palette(rgb_values):
+    # RGB 값을 seaborn의 팔레트 형식으로 변환
+    seaborn_palette =[(r /255, g /255, b /255) for r, g, b in rgb_values]
+    return seaborn_palette
+
+def enhance_palette_with_image_colors(image_path):
+    # 이미지에서 RGB 값을 추출. image_path는 webp를 지원.
+    img =Image.open(image_path)
+    colors, _=extcolors.extract_from_image(img)
+    rgb_values =[c[0] for c in colors]
+
+    # 추출한 RGB 값을 seaborn 팔레트로 변환
+    image_palette =rgb_to_seaborn_palette(rgb_values)
+
+    # 팔레트 반환
+    return image_palette
