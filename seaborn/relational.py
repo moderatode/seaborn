@@ -185,13 +185,14 @@ _param_docs = DocstringComponents.from_nested_components(
 
 
 class _RelationalPlotter(VectorPlotter):
+    # 변경.
+    def __init__(self, data, variables):
+        super().__init__(data=data, variables=variables)
+        self.sort = True
 
     wide_structure = {
         "x": "@index", "y": "@values", "hue": "@columns", "style": "@columns",
     }
-
-    # TODO where best to define default parameters?
-    sort = True
 
 
 class _LinePlotter(_RelationalPlotter):
