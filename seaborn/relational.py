@@ -258,11 +258,14 @@ class _LinePlotter(_RelationalPlotter):
         )
 
         # TODO abstract variable to aggregate over here-ish. Better name?
-        orient = self.orient
-        if orient not in {"x", "y"}:
-            err = f"`orient` must be either 'x' or 'y', not {orient!r}."
+        # TODO Done
+        aggregate_variable = self.orient
+        if aggregate_variable not in {"x", "y"}:
+            err = f"`orient` must be either 'x' or 'y', not {aggregate_variable!r}."
             raise ValueError(err)
-        other = {"x": "y", "y": "x"}[orient]
+        
+        # Determine the other variable based on the orientation
+        other = {"x": "y", "y": "x"}[aggregate_variable]
 
         # TODO How to handle NA? We don't want NA to propagate through to the
         # estimate/CI when some values are present, but we would also like
@@ -275,22 +278,23 @@ class _LinePlotter(_RelationalPlotter):
         for sub_vars, sub_data in self.iter_data(grouping_vars, from_comp_data=True):
 
             if self.sort:
-                sort_vars = ["units", orient, other]
+                sort_vars = ["units", aggregate_variable, other]
                 sort_cols = [var for var in sort_vars if var in self.variables]
                 sub_data = sub_data.sort_values(sort_cols)
 
             if (
                 self.estimator is not None
-                and sub_data[orient].value_counts().max() > 1
+                and sub_data[aggregate_variable].value_counts().max() > 1
             ):
                 if "units" in self.variables:
                     # TODO eventually relax this constraint
+                    # TODO done. 제약을 완화하여 estimator가 units를 지정할 수 있도록 함.
+                    grouped = sub_data.groupby(aggregate_variable, sort=self.sort)
+                    sub_data = grouped.apply(agg, other).reset_index()
+                else:
+                    # units을 지정하는 경우에는 여전히 estimator가 None이어야 함.
                     err = "estimator must be None when specifying units"
                     raise ValueError(err)
-                grouped = sub_data.groupby(orient, sort=self.sort)
-                # Could pass as_index=False instead of reset_index,
-                # but that fails on a corner case with older pandas.
-                sub_data = grouped.apply(agg, other).reset_index()
             else:
                 sub_data[f"{other}min"] = np.nan
                 sub_data[f"{other}max"] = np.nan
@@ -337,9 +341,9 @@ class _LinePlotter(_RelationalPlotter):
 
                 if self.err_style == "band":
 
-                    func = {"x": ax.fill_between, "y": ax.fill_betweenx}[orient]
+                    func = {"x": ax.fill_between, "y": ax.fill_betweenx}[aggregate_variable]
                     func(
-                        sub_data[orient],
+                        sub_data[aggregate_variable],
                         sub_data[f"{other}min"], sub_data[f"{other}max"],
                         color=line_color, **err_kws
                     )
