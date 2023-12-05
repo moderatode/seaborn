@@ -222,6 +222,23 @@ def saturate(color):
     """
     return set_hls_values(color, s=1)
 
+# 추가.
+def setting_saturation(color, prop=None, saturate=False):
+    rgb = to_rgb(color)
+    h , l , s = colorsys.rgb_to_hls(*rgb)
+    
+    if saturate:
+        s = 1
+    elif prop is not None:
+        if not 0 <= prop <= 1:
+            raise ValueError("prop must be between 0 and 1")
+        
+        s *= prop
+    
+    new_color = colorsys.hls_to_rgb(h,l,s)
+    
+    return new_color
+
 
 def set_hls_values(color, h=None, l=None, s=None):  # noqa
     """Independently manipulate the h, l, or s channels of a color.
