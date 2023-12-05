@@ -234,6 +234,8 @@ def setting_saturation(color, prop=None, saturate=False):
             raise ValueError("prop must be between 0 and 1")
         
         s *= prop
+    else:
+        raise ValueError("prop is None")
     
     new_color = colorsys.hls_to_rgb(h,l,s)
     
