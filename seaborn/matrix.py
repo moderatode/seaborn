@@ -1,8 +1,6 @@
 """Functions to visualize matrices of data."""
 import warnings
 
-from mpldatacursor import datacursor
-
 import matplotlib as mpl
 from matplotlib.collections import LineCollection
 import matplotlib.pyplot as plt
@@ -101,7 +99,7 @@ class _HeatMapper:
 
     def __init__(self, data, vmin, vmax, cmap, center, robust, annot, fmt,
                  annot_kws, cbar, cbar_kws,
-                 xticklabels=True, yticklabels=True, mask=None, colorbar_fontsize=12, text_fontsize=10):
+                 xticklabels=True, yticklabels=True, mask=None):
         """Initialize the plotting object."""
         # We always want to have a DataFrame with semantic information
         # and an ndarray to pass to matplotlib
@@ -164,7 +162,6 @@ class _HeatMapper:
         # Determine good default values for the colormapping
         self._determine_cmap_params(plot_data, vmin, vmax,
                                     cmap, center, robust)
-        
 
         # Sort out the annotations
         if annot is None or annot is False:
@@ -191,7 +188,6 @@ class _HeatMapper:
         self.annot_kws = {} if annot_kws is None else annot_kws.copy()
         self.cbar = cbar
         self.cbar_kws = {} if cbar_kws is None else cbar_kws.copy()
-
 
     def _determine_cmap_params(self, plot_data, vmin, vmax,
                                cmap, center, robust):
@@ -298,19 +294,17 @@ class _HeatMapper:
     def plot(self, ax, cax, kws, tooltips = True):
         """Draw the heatmap on the provided Axes."""
         # Remove all the Axes spines
-        '''Parameters:
-        ...
-        show_xticks : bool, optional
-        Whether to show x-axis ticks.
-        show_yticks : bool, optional
-        Whether to show y-axis ticks.'''
         despine(ax=ax, left=True, bottom=True)
+
+        ######### 추가 #########
+        ########################
+        from mpldatacursor import datacursor # 추가 설치 필요.
 
         # 추가됨
         if tooltips:
             def on_hover(event):
                 if event.inaxes == ax:
-                    x, y = int(event.xdata + 0.5), int(event.ydata + 0.5)
+                    x, y = int(event.xdata), int(event.ydata)
                     if 0 <= x < self.plot_data.shape[1] and 0 <= y < self.plot_data.shape[0]:
                         value = self.plot_data[y, x]
                         title_text = ax.get_title()
@@ -320,7 +314,7 @@ class _HeatMapper:
                             ax.value_annotation.remove()
             
                         # Create a new text annotation for the value below the title
-                        ax.value_annotation = ax.text(1.2, -0.1, f'Value: {value}', transform=ax.transAxes,
+                        ax.value_annotation = ax.text(1.2, -0.1, f'Value: {value:.8f}', transform=ax.transAxes,
                                                       ha='center', va='center', fontsize=12, color='blue')
                         
                         # Set the original title
@@ -328,7 +322,6 @@ class _HeatMapper:
                         ax.figure.canvas.draw()
 
             ax.figure.canvas.mpl_connect('motion_notify_event', on_hover)
-
 
         # setting vmin/vmax in addition to norm is deprecated
         # so avoid setting if norm is set
@@ -384,8 +377,6 @@ class _HeatMapper:
         # Annotate the cells with the formatted values
         if self.annot:
             self._annotate_heatmap(ax, mesh)
-
-        
 
 
 def heatmap(
@@ -494,8 +485,6 @@ def heatmap(
         ax.set_aspect("equal")
     plotter.plot(ax, cbar_ax, kwargs)
     return ax
-
-    
 
 
 class _DendrogramPlotter:
